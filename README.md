@@ -57,7 +57,8 @@ UNTDF · Tecnicatura Universitaria en Desarrollo de Aplicaciones
 | [Tailwind CSS 4](https://tailwindcss.com/) | Estilos |
 | Context API | Sesión (`AuthContext`) y carrito (`CartContext`) |
 | `fetch` + `async/await` | Consultas asincrónicas a los datos |
-| `localStorage` | Carrito y cambios simulados del CRUD (nunca secretos) |
+| Proxy de Vite | Reenvía `/api/*` a la API de la cátedra agregando el token del lado del servidor |
+| `localStorage` | Carrito y sesión simulada (nunca secretos) |
 | [ESLint 9](https://eslint.org/) | Calidad de código: `eqeqeq`, `jsx-key`, reglas de Hooks y variables sin usar |
 
 ---
@@ -74,11 +75,25 @@ cd web_2_integrador_final
 # 2. Instalar dependencias
 npm install
 
-# 3. Levantar el servidor de desarrollo
+# 3. Crear el archivo .env a partir de la plantilla y completar API_TOKEN
+cp .env.example .env
+
+# 4. Levantar el servidor de desarrollo
 npm run dev
 ```
 
 La aplicación queda disponible en `http://localhost:5173`.
+
+### Variables de entorno (`.env`)
+
+| Variable | Descripción |
+|---|---|
+| `API_URL` | URL de la API de la cátedra (por defecto `https://ecommerce.fedegonzalez.com`) |
+| `API_TOKEN` | Token personal para la API. **Se pide a la cátedra; no está en el repositorio.** |
+
+- El archivo `.env` está en `.gitignore` y **nunca se sube**; el repositorio solo incluye `.env.example` con `API_TOKEN` vacío.
+- Las variables **no llevan el prefijo `VITE_`** a propósito: Vite solo expone al navegador las variables `VITE_*`, así que `API_TOKEN` queda únicamente en el proceso de Node que corre el servidor.
+- Si se cambia el `.env`, hay que reiniciar `npm run dev`. Si falta `API_TOKEN`, la terminal muestra un aviso.
 
 | Script | Descripción |
 |---|---|
@@ -96,9 +111,14 @@ La aplicación queda disponible en `http://localhost:5173`.
 
 | Rol | Usuario | Contraseña |
 |---|---|---|
-| Administrador | _a definir_ | _a definir_ |
-| Cliente | _a definir_ | _a definir_ |
+| Administrador | `admin` | `admin123` |
+| Cliente | `cliente` | `cliente123` |
 | Visitante | (sin sesión) | — |
+
+- Las cuentas están definidas en `src/services/authService.js` y la pantalla de login las muestra para completarlas con un clic.
+- La sesión es **simulada**: se guarda solo el `username` en `localStorage` (nunca la contraseña) y el rol se vuelve a leer de las cuentas demo al recargar, así que editar `localStorage` a mano no da permisos de admin.
+- Además de proteger rutas y botones, los servicios validan el rol (`exigirAdmin()`) antes de cada operación de escritura.
+- **Esto no reemplaza la autorización de un servidor**: el código del frontend es visible para cualquiera, por lo que la protección del CRUD es una simulación.
 
 ### Matriz de permisos
 
@@ -134,11 +154,24 @@ Un visitante que intenta entrar a una ruta protegida se redirige a `/login`. Un 
 
 ## 🗂️ Origen de datos
 
-Se trabaja con la **Modalidad A** del enunciado:
+Los datos vienen de la **API REST de la cátedra** ([documentación](https://ecommerce.fedegonzalez.com/docs)) a través de un **proxy de Vite** que funciona como backend intermediario:
 
-- Los datos iniciales se obtienen con `fetch` (GET) desde `src/data/api-fake.json`.
-- Las operaciones de crear, editar y borrar se aplican sobre el estado de React y se guardan en `localStorage`.
-- **Ninguna operación de escritura modifica el archivo JSON.** Toda mutación es simulada y vive solo en el navegador.
+```
+Navegador (React) ──► /api/products/ ──► Proxy de Vite (agrega el token) ──► https://ecommerce.fedegonzalez.com/products/
+```
+
+- El frontend **nunca conoce el token**: todas las peticiones van a `/api/...` y el proxy (`vite.config.js`) agrega el header `Authorization: Bearer <API_TOKEN>` leyendo el `.env`.
+- Así se cumple que el token no esté en el código de React, en variables `VITE_*` ni en el repositorio.
+- **Limitación:** el proxy solo existe mientras corre `npm run dev` o `npm run preview`. Si se sube `dist/` a un hosting estático, haría falta un backend real que cumpla la misma función.
+- Las operaciones de escritura (crear, editar, borrar) se hacen contra la API real, por lo que los cambios persisten al recargar.
+- El token es compartido por el equipo: todos los que lo usan ven y modifican los mismos datos.
+
+### Capa de servicios
+- `apiClient.js` centraliza el `fetch`: controla `response.ok`, usa `try/catch` y distingue error de red, 401/403, 404, 422 (datos inválidos) y errores del servidor con mensajes comprensibles.
+- Acepta un `AbortController` (`signal`) para cancelar peticiones cuando un componente se desmonta y evitar solicitudes duplicadas.
+- Los servicios **normalizan** las respuestas para que los componentes siempre reciban la misma forma; por ejemplo, convierten las rutas de imágenes (`/uploads/...`) en URLs completas.
+- Los IDs se validan antes de consultar la API (por ejemplo `/productos/abc` responde "no encontrado" sin hacer la petición).
+- La API solo filtra productos por categoría; la búsqueda por texto, el filtro por tags y el orden por precio se hacen en el frontend.
 
 ### Modelo de datos
 - **Producto:** `id`, `title`, `description`, `price`, `category_id`, `pictures`, `category`, `tags`.
@@ -152,11 +185,11 @@ Cada producto referencia **una categoría** y **cero o más tags**.
 
 ```
 src/
-├── components/      Navbar, Footer, ProductCard, ProtectedRoute, AdminRoute, Loader, ErrorMessage
+├── components/      Layout, Navbar, Footer, ProductCard, Estrella, ProtectedRoute, AdminRoute, Loader, ErrorMessage
 ├── pages/           Home, Products, ProductDetail, Login, Cart, Checkout, Forbidden, NotFound
 │   └── admin/       AdminDashboard, AdminProducts, AdminCategories, AdminTags
 ├── context/         AuthContext, CartContext
-├── services/        apiClient, productService, categoryService, tagService, authService
+├── services/        apiClient, productService, categoryService, tagService, authService, validaciones
 ├── data/            api-fake.json
 ├── styles/
 ├── App.jsx          Definición de rutas
