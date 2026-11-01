@@ -58,6 +58,7 @@ UNTDF · Tecnicatura Universitaria en Desarrollo de Aplicaciones
 | Context API | Sesión (`AuthContext`) y carrito (`CartContext`) |
 | `fetch` + `async/await` | Consultas asincrónicas a los datos |
 | `localStorage` | Carrito y cambios simulados del CRUD (nunca secretos) |
+| [ESLint 9](https://eslint.org/) | Calidad de código: `eqeqeq`, `jsx-key`, reglas de Hooks y variables sin usar |
 
 ---
 
@@ -84,7 +85,8 @@ La aplicación queda disponible en `http://localhost:5173`.
 | `npm run dev` | Servidor de desarrollo |
 | `npm run build` | Build de producción en `dist/` |
 | `npm run preview` | Previsualiza el build |
-| `npm run lint` | Análisis estático con oxlint |
+| `npm run lint` | Análisis estático con ESLint |
+| `npm run lint:fix` | Corrige automáticamente lo que ESLint puede arreglar |
 
 ---
 
