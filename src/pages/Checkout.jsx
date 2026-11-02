@@ -23,8 +23,8 @@ function Checkout() {
     return (
       <div className="flex flex-col items-center gap-3 py-24 text-center">
         <Estrella animada className="w-20 h-20" />
-        <p className="text-2xl font-black text-slate-900">¡Gracias por tu compra, {user?.nombre}!</p>
-        <p className="text-sm text-slate-500">Esta compra es una simulación: no se realizó ningún cobro.</p>
+        <p className="text-2xl font-black text-texto">¡Gracias por tu compra, {user?.nombre}!</p>
+        <p className="text-sm text-texto-suave">Esta compra es una simulación: no se realizó ningún cobro.</p>
         <Link to="/productos" className="mt-2 text-sm text-violet-600 hover:underline">
           Seguir comprando
         </Link>
@@ -36,7 +36,7 @@ function Checkout() {
     return (
       <div className="flex flex-col items-center gap-3 py-24 text-center">
         <Estrella className="w-16 h-16 opacity-60" />
-        <p className="font-bold text-slate-900">No hay nada para pagar</p>
+        <p className="font-bold text-texto">No hay nada para pagar</p>
         <Link to="/productos" className="text-sm text-violet-600 hover:underline">
           Ver productos
         </Link>
@@ -46,39 +46,39 @@ function Checkout() {
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-black text-slate-900 mb-6">Confirmar compra</h1>
+      <h1 className="text-2xl font-black text-texto mb-6">Confirmar compra</h1>
 
-      <div className="p-4 bg-white rounded-2xl border border-slate-200">
-        <ul className="divide-y divide-slate-100">
+      <div className="p-4 bg-superficie rounded-2xl border border-borde">
+        <ul className="divide-y divide-borde">
           {items.map((item) => (
             <li key={item.id} className="flex justify-between gap-4 py-2 text-sm">
-              <span className="text-slate-700">
+              <span className="text-texto-suave">
                 {item.cantidad} × {item.title}
               </span>
-              <span className="font-semibold text-slate-900">
+              <span className="font-semibold text-texto">
                 ${(item.price * item.cantidad).toLocaleString('es-AR')}
               </span>
             </li>
           ))}
         </ul>
 
-        <div className="mt-4 pt-4 border-t border-slate-200 flex justify-between items-center">
-          <span className="text-slate-500">Total ({cantidadTotal} productos)</span>
-          <span className="text-2xl font-black text-slate-900">${subtotal.toLocaleString('es-AR')}</span>
+        <div className="mt-4 pt-4 border-t border-borde flex justify-between items-center">
+          <span className="text-texto-suave">Total ({cantidadTotal} productos)</span>
+          <span className="text-2xl font-black text-texto">${subtotal.toLocaleString('es-AR')}</span>
         </div>
       </div>
 
-      <p className="mt-4 text-xs text-slate-400">
+      <p className="mt-4 text-xs text-texto-suave">
         Compra simulada: al confirmar no se cobra nada y el carrito se vacía.
       </p>
 
       <div className="mt-4 flex items-center gap-4">
-        <Link to="/carrito" className="text-sm text-slate-500 hover:text-violet-600">
+        <Link to="/carrito" className="text-sm text-texto-suave hover:text-violet-600">
           ← Volver al carrito
         </Link>
         <button
           onClick={confirmarCompra}
-          className="ml-auto px-6 py-3 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-700"
+          className="ml-auto px-6 py-3 rounded-xl bg-boton text-boton-texto font-semibold hover:bg-boton-hover"
         >
           Confirmar compra
         </button>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import Estrella from './Estrella'
+import { useTema } from '../context/useTema'
 
 const items = [
   {
@@ -29,23 +30,25 @@ function Navbar({ cantidadCarrito = 0, usuario = null, onLogout }) {
   // Se ve abierta si alguna de las dos es verdadera
   const abierta = fijada || mouseEncima
 
+  const { tema, cambiarTema } = useTema()
+
   return (
     <aside
       onMouseEnter={() => setMouseEncima(true)}
       onMouseLeave={() => setMouseEncima(false)}
-      className={`relative flex flex-col h-full bg-white border-r border-slate-200 p-4 whitespace-nowrap transition-all ${abierta ? 'w-64' : 'w-20'
+      className={`relative flex flex-col h-full bg-superficie border-r border-borde p-4 whitespace-nowrap transition-all ${abierta ? 'w-64' : 'w-20'
         }`}
     >
       <button
         onClick={() => setFijada(!fijada)}
-        className="absolute -right-3 top-6 w-6 h-6 flex items-center justify-center rounded-full bg-white border border-slate-200 text-slate-500 hover:text-slate-900"
+        className="absolute -right-3 top-6 w-6 h-6 flex items-center justify-center rounded-full bg-superficie border border-borde text-texto-suave hover:text-texto"
         aria-label={fijada ? 'Desfijar menú' : 'Fijar menú abierto'}
       >
         {fijada ? '‹' : '›'}
       </button>
 
       <div className={`flex items-center mb-6 ${abierta ? 'justify-between' : 'justify-center'}`}>
-        {abierta && <p className="text-xl font-black">Urban Store</p>}
+        {abierta && <p className="text-xl font-black text-texto">Urban Store</p>}
 
         <div className="relative w-12 h-12 flex items-center justify-center">
           <Estrella className="absolute inset-0 w-full h-full" />
@@ -62,8 +65,8 @@ function Navbar({ cantidadCarrito = 0, usuario = null, onLogout }) {
             title={item.label}
             className={({ isActive }) =>
               isActive
-                ? 'flex items-center gap-3 px-3 py-2 rounded-lg bg-blue-50 text-blue-600 font-semibold'
-                : 'flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100'
+                ? 'flex items-center gap-3 px-3 py-2 rounded-lg bg-blue-50 text-blue-600 font-semibold dark:bg-blue-950 dark:text-blue-300'
+                : 'flex items-center gap-3 px-3 py-2 rounded-lg text-texto-suave hover:bg-suave'
             }
           >
             {/* "relative" para poder ubicar la bolita del carrito encima del ícono */}
@@ -80,7 +83,7 @@ function Navbar({ cantidadCarrito = 0, usuario = null, onLogout }) {
             </span>
             {abierta && item.label}
             {abierta && item.to === '/carrito' && cantidadCarrito > 0 && (
-              <span className="ml-auto px-2 rounded-full bg-slate-100 text-xs font-bold text-slate-600">
+              <span className="ml-auto px-2 rounded-full bg-suave text-xs font-bold text-texto-suave">
                 {cantidadCarrito}
               </span>
             )}
@@ -88,30 +91,42 @@ function Navbar({ cantidadCarrito = 0, usuario = null, onLogout }) {
         ))}
       </nav>
 
-      <div className="mt-auto border-t border-slate-200 pt-4">
-        {usuario ? (
-          <div className="flex items-center gap-3">
-            <span className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full bg-blue-600 text-white font-bold">
-              {usuario[0]}
-            </span>
-            {abierta && (
-              <div>
-                <p className="text-sm font-semibold text-slate-900">{usuario}</p>
-                <button onClick={onLogout} className="text-xs text-slate-500 hover:text-red-600">
-                  Cerrar sesión
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <Link
-            to="/login"
-            title="Iniciar sesión"
-            className="block py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold text-center hover:bg-blue-700"
-          >
-            {abierta ? 'Iniciar sesión' : '→'}
-          </Link>
-        )}
+      <div className="mt-auto flex flex-col gap-3">
+        {/* Botón para cambiar entre tema claro y oscuro */}
+        <button
+          onClick={cambiarTema}
+          title={tema === 'oscuro' ? 'Modo claro' : 'Modo oscuro'}
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-texto-suave hover:bg-suave"
+        >
+          <span className="w-5 text-center">{tema === 'oscuro' ? '☀️' : '🌙'}</span>
+          {abierta && (tema === 'oscuro' ? 'Modo claro' : 'Modo oscuro')}
+        </button>
+
+        <div className="border-t border-borde pt-4">
+          {usuario ? (
+            <div className="flex items-center gap-3">
+              <span className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full bg-blue-600 text-white font-bold">
+                {usuario[0]}
+              </span>
+              {abierta && (
+                <div>
+                  <p className="text-sm font-semibold text-texto">{usuario}</p>
+                  <button onClick={onLogout} className="text-xs text-texto-suave hover:text-red-600">
+                    Cerrar sesión
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              title="Iniciar sesión"
+              className="block py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold text-center hover:bg-blue-700"
+            >
+              {abierta ? 'Iniciar sesión' : '→'}
+            </Link>
+          )}
+        </div>
       </div>
     </aside>
   )

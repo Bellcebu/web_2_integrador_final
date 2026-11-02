@@ -6,13 +6,13 @@ function ErrorMessage({ mensaje = 'Ocurrió un error inesperado.', onReintentar 
       <div className="w-12 h-12 flex items-center justify-center rounded-full bg-pink-100 text-pink-500 text-2xl font-black">
         !
       </div>
-      <p className="font-bold text-slate-900">Algo salió mal</p>
-      <p className="text-sm text-slate-500">{mensaje}</p>
+      <p className="font-bold text-texto">Algo salió mal</p>
+      <p className="text-sm text-texto-suave">{mensaje}</p>
 
       {onReintentar && (
         <button
           onClick={onReintentar}
-          className="mt-2 px-4 py-2 rounded-lg bg-slate-900 text-white text-sm font-semibold hover:bg-slate-700"
+          className="mt-2 px-4 py-2 rounded-lg bg-boton text-boton-texto text-sm font-semibold hover:bg-boton-hover"
         >
           Reintentar
         </button>

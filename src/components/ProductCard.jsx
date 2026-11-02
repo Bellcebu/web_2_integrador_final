@@ -10,9 +10,9 @@ function ProductCard({ producto }) {
   return (
     <Link
       to={`/productos/${producto.id}`}
-      className="group flex flex-col h-full bg-white rounded-2xl overflow-hidden border border-slate-200 hover:shadow-lg transition-shadow"
+      className="group flex flex-col h-full bg-superficie rounded-2xl overflow-hidden border border-borde hover:shadow-lg transition-shadow"
     >
-      <div className="relative aspect-3/4 bg-slate-100 overflow-hidden">
+      <div className="relative aspect-3/4 bg-suave overflow-hidden">
         {imagen ? (
           <img
             src={imagen}
@@ -31,7 +31,7 @@ function ProductCard({ producto }) {
           {producto.tags?.map((tag) => (
             <span
               key={tag.id}
-              className="px-2 py-0.5 rounded-md bg-white/90 text-[10px] font-bold uppercase tracking-wide text-violet-600"
+              className="px-2 py-0.5 rounded-md bg-superficie/90 text-[10px] font-bold uppercase tracking-wide text-violet-600"
             >
               {tag.title}
             </span>
@@ -40,9 +40,9 @@ function ProductCard({ producto }) {
       </div>
 
       <div className="flex flex-col gap-1 p-3">
-        <p className="text-xs text-slate-400">{producto.category?.title}</p>
-        <p className="font-semibold text-slate-900 line-clamp-2">{producto.title}</p>
-        <p className="mt-auto pt-1 text-lg font-black text-slate-900">
+        <p className="text-xs text-texto-suave">{producto.category?.title}</p>
+        <p className="font-semibold text-texto line-clamp-2">{producto.title}</p>
+        <p className="mt-auto pt-1 text-lg font-black text-texto">
           ${producto.price.toLocaleString('es-AR')}
         </p>
       </div>

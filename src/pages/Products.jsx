@@ -9,7 +9,7 @@ import Loader from '../components/Loader'
 import ErrorMessage from '../components/ErrorMessage'
 
 const claseCampo =
-  'px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:border-violet-400'
+  'px-3 py-2 rounded-lg border border-borde bg-superficie text-sm text-texto-suave focus:outline-none focus:border-violet-400'
 
 // Catálogo: /productos
 function Products() {
@@ -89,7 +89,7 @@ function Products() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-2xl font-black text-slate-900 mb-6">Productos</h1>
+      <h1 className="text-2xl font-black text-texto mb-6">Productos</h1>
 
       {/* Filtros: se pueden combinar entre sí */}
       <div className="flex flex-wrap gap-3 mb-6">
@@ -126,18 +126,18 @@ function Products() {
         </select>
 
         {hayFiltros && (
-          <button onClick={limpiarFiltros} className="text-sm text-slate-500 hover:text-violet-600">
+          <button onClick={limpiarFiltros} className="text-sm text-texto-suave hover:text-violet-600">
             Limpiar filtros
           </button>
         )}
       </div>
 
-      <p className="text-sm text-slate-400 mb-4">
+      <p className="text-sm text-texto-suave mb-4">
         {productosFiltrados.length} de {productos.length} productos
       </p>
 
       {productosFiltrados.length === 0 ? (
-        <p className="py-16 text-center text-slate-500">
+        <p className="py-16 text-center text-texto-suave">
           {productos.length === 0
             ? 'No hay productos para mostrar.'
             : 'No hay productos que coincidan con los filtros.'}

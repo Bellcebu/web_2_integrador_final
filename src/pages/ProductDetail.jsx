@@ -82,14 +82,14 @@ function ProductDetail() {
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <Link to="/productos" className="text-sm text-slate-500 hover:text-violet-600">
+      <Link to="/productos" className="text-sm text-texto-suave hover:text-violet-600">
         ← Volver a productos
       </Link>
 
       <div className="mt-4 grid md:grid-cols-2 gap-8">
         {/* Imágenes: una grande y las miniaturas para elegir */}
         <div>
-          <div className="aspect-3/4 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200">
+          <div className="aspect-3/4 rounded-2xl overflow-hidden bg-suave border border-borde">
             {fotoGrande ? (
               <img src={fotoGrande} alt={producto.title} className="w-full h-full object-cover" />
             ) : (
@@ -118,15 +118,15 @@ function ProductDetail() {
 
         {/* Información */}
         <div className="flex flex-col gap-4">
-          <p className="text-sm text-slate-400">{producto.category?.title}</p>
-          <h1 className="text-3xl font-black text-slate-900">{producto.title}</h1>
+          <p className="text-sm text-texto-suave">{producto.category?.title}</p>
+          <h1 className="text-3xl font-black text-texto">{producto.title}</h1>
 
           {producto.tags.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {producto.tags.map((t) => (
                 <span
                   key={t.id}
-                  className="px-2 py-0.5 rounded-md bg-violet-50 text-xs font-bold uppercase text-violet-600"
+                  className="px-2 py-0.5 rounded-md bg-violet-50 dark:bg-violet-950 text-xs font-bold uppercase text-violet-600"
                 >
                   {t.title}
                 </span>
@@ -134,13 +134,13 @@ function ProductDetail() {
             </div>
           )}
 
-          <p className="text-3xl font-black text-slate-900">${producto.price.toLocaleString('es-AR')}</p>
+          <p className="text-3xl font-black text-texto">${producto.price.toLocaleString('es-AR')}</p>
 
-          {producto.description && <p className="text-slate-600 leading-relaxed">{producto.description}</p>}
+          {producto.description && <p className="text-texto-suave leading-relaxed">{producto.description}</p>}
 
           <button
             onClick={agregarAlCarrito}
-            className="mt-2 py-3 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-700"
+            className="mt-2 py-3 rounded-xl bg-boton text-boton-texto font-semibold hover:bg-boton-hover"
           >
             {user ? 'Agregar al carrito' : 'Iniciá sesión para comprar'}
           </button>

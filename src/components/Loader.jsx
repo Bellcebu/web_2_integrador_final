@@ -5,7 +5,7 @@ function Loader({ texto = 'Cargando…' }) {
   return (
     <div role="status" className="flex flex-col items-center justify-center gap-3 py-16">
       <Estrella animada className="w-12 h-12" />
-      <p className="text-sm text-slate-500">{texto}</p>
+      <p className="text-sm text-texto-suave">{texto}</p>
     </div>
   )
 }

@@ -1,1 +1,34 @@
 @import "tailwindcss";
+
+/* Variante "dark:" de Tailwind: se activa adentro de un elemento con la clase "dark" */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+  Colores de la tienda con nombre propio. Cada uno crea su clase de Tailwind:
+  --color-fondo  →  bg-fondo, text-fondo, border-fondo...
+  Estos son los valores del tema CLARO.
+*/
+@theme {
+  --color-fondo: #f8fafc;        /* fondo de la página */
+  --color-superficie: #ffffff;   /* tarjetas, sidebar, footer */
+  --color-suave: #f1f5f9;        /* hover y fondos de imágenes */
+  --color-borde: #e2e8f0;        /* bordes */
+  --color-texto: #0f172a;        /* texto principal */
+  --color-texto-suave: #64748b;  /* texto secundario */
+  --color-boton: #0f172a;        /* botones principales */
+  --color-boton-hover: #334155;
+  --color-boton-texto: #ffffff;
+}
+
+/* Tema OSCURO: los mismos nombres, otros valores. Todo lo que esté adentro de .dark los usa. */
+.dark {
+  --color-fondo: #020617;
+  --color-superficie: #0f172a;
+  --color-suave: #1e293b;
+  --color-borde: #334155;
+  --color-texto: #f1f5f9;
+  --color-texto-suave: #94a3b8;
+  --color-boton: #f1f5f9;
+  --color-boton-hover: #cbd5e1;
+  --color-boton-texto: #0f172a;
+}
