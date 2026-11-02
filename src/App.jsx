@@ -7,6 +7,8 @@ import Forbidden from "./pages/Forbidden";
 import NotFound from "./pages/NotFound";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
 
 // Marcador temporal para las páginas que todavía no están hechas.
 // Cuando una página esté lista, se importa y se reemplaza <Pendiente /> por ella.
@@ -26,8 +28,8 @@ function App() {
 
         {/* Requieren sesión (cliente o admin) */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/carrito" element={<Pendiente nombre="Carrito" />} />
-          <Route path="/checkout" element={<Pendiente nombre="Checkout" />} />
+          <Route path="/carrito" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
         </Route>
 
         {/* Requieren rol admin */}
