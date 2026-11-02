@@ -66,9 +66,18 @@ function Navbar({ cantidadCarrito = 0, usuario = null, onLogout }) {
                 : 'flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100'
             }
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
-            </svg>
+            {/* "relative" para poder ubicar la bolita del carrito encima del ícono */}
+            <span className="relative">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
+              </svg>
+              {/* Sidebar cerrada: el número va como bolita sobre el ícono del carrito */}
+              {!abierta && item.to === '/carrito' && cantidadCarrito > 0 && (
+                <span className="absolute -top-2 -right-2 min-w-4 h-4 px-1 flex items-center justify-center rounded-full bg-violet-500 text-[10px] font-bold text-white">
+                  {cantidadCarrito > 9 ? '9+' : cantidadCarrito}
+                </span>
+              )}
+            </span>
             {abierta && item.label}
             {abierta && item.to === '/carrito' && cantidadCarrito > 0 && (
               <span className="ml-auto px-2 rounded-full bg-slate-100 text-xs font-bold text-slate-600">
