@@ -5,6 +5,7 @@ import AdminRoute from "./components/AdminRoute";
 import Login from "./pages/Login";
 import Forbidden from "./pages/Forbidden";
 import NotFound from "./pages/NotFound";
+import Home from "./pages/Home";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
@@ -21,7 +22,7 @@ function App() {
     <Routes>
       <Route element={<Layout />}>
         {/* Públicas */}
-        <Route path="/" element={<Pendiente nombre="Home" />} />
+        <Route path="/" element={<Home />} />
         <Route path="/productos" element={<Products />} />
         <Route path="/productos/:id" element={<ProductDetail />} />
         <Route path="/login" element={<Login />} />

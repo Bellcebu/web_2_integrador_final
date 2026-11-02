@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { getProducts } from '../services/productService'
 import { getCategories } from '../services/categoryService'
 import { getTags } from '../services/tagService'
@@ -21,9 +22,12 @@ function Products() {
   // Cada vez que sube este número, el useEffect vuelve a pedir los datos (botón "Reintentar")
   const [intento, setIntento] = useState(0)
 
-  // Filtros que elige el usuario ('' = sin filtro)
-  const [busqueda, setBusqueda] = useState('')
-  const [categoria, setCategoria] = useState('')
+  // Desde el Home se puede llegar con filtros en la URL: /productos?buscar=jean o ?categoria=357
+  const [searchParams] = useSearchParams()
+
+  // Filtros que elige el usuario ('' = sin filtro). Arrancan con lo que venga en la URL.
+  const [busqueda, setBusqueda] = useState(searchParams.get('buscar') ?? '')
+  const [categoria, setCategoria] = useState(searchParams.get('categoria') ?? '')
   const [tag, setTag] = useState('')
   const [orden, setOrden] = useState('')
 
