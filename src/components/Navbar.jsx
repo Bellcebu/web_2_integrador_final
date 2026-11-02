@@ -21,19 +21,27 @@ const items = [
 ]
 
 function Navbar({ cantidadCarrito = 0, usuario = null, onLogout }) {
-  const [abierta, setAbierta] = useState(window.innerWidth >= 768)
+  // "fijada": la maneja la flechita (queda abierta aunque saques el mouse)
+  const [fijada, setFijada] = useState(window.innerWidth >= 768)
+  // "mouseEncima": se abre mientras el mouse está sobre la sidebar
+  const [mouseEncima, setMouseEncima] = useState(false)
+
+  // Se ve abierta si alguna de las dos es verdadera
+  const abierta = fijada || mouseEncima
 
   return (
     <aside
+      onMouseEnter={() => setMouseEncima(true)}
+      onMouseLeave={() => setMouseEncima(false)}
       className={`relative flex flex-col h-full bg-white border-r border-slate-200 p-4 whitespace-nowrap transition-all ${abierta ? 'w-64' : 'w-20'
         }`}
     >
       <button
-        onClick={() => setAbierta(!abierta)}
+        onClick={() => setFijada(!fijada)}
         className="absolute -right-3 top-6 w-6 h-6 flex items-center justify-center rounded-full bg-white border border-slate-200 text-slate-500 hover:text-slate-900"
-        aria-label={abierta ? 'Cerrar menú' : 'Abrir menú'}
+        aria-label={fijada ? 'Desfijar menú' : 'Fijar menú abierto'}
       >
-        {abierta ? '‹' : '›'}
+        {fijada ? '‹' : '›'}
       </button>
 
       <div className={`flex items-center mb-6 ${abierta ? 'justify-between' : 'justify-center'}`}>
@@ -71,46 +79,30 @@ function Navbar({ cantidadCarrito = 0, usuario = null, onLogout }) {
         ))}
       </nav>
 
-      <div className="mt-auto flex flex-col gap-4">
-        {abierta && (
-          <div className="rounded-2xl border border-slate-200 p-4 text-center">
-            <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-linear-to-br from-sky-300 via-violet-300 to-pink-300" />
-            <p className="text-xs text-slate-500">Pagando con transferencia</p>
-            <p className="font-bold text-slate-900 mb-3">15% OFF en toda la tienda</p>
-            <Link
-              to="/productos"
-              className="block py-2 rounded-lg bg-slate-900 text-white text-sm font-semibold hover:bg-slate-700"
-            >
-              Ver productos
-            </Link>
+      <div className="mt-auto border-t border-slate-200 pt-4">
+        {usuario ? (
+          <div className="flex items-center gap-3">
+            <span className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full bg-blue-600 text-white font-bold">
+              {usuario[0]}
+            </span>
+            {abierta && (
+              <div>
+                <p className="text-sm font-semibold text-slate-900">{usuario}</p>
+                <button onClick={onLogout} className="text-xs text-slate-500 hover:text-red-600">
+                  Cerrar sesión
+                </button>
+              </div>
+            )}
           </div>
+        ) : (
+          <Link
+            to="/login"
+            title="Iniciar sesión"
+            className="block py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold text-center hover:bg-blue-700"
+          >
+            {abierta ? 'Iniciar sesión' : '→'}
+          </Link>
         )}
-
-        <div className="border-t border-slate-200 pt-4">
-          {usuario ? (
-            <div className="flex items-center gap-3">
-              <span className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full bg-blue-600 text-white font-bold">
-                {usuario[0]}
-              </span>
-              {abierta && (
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">{usuario}</p>
-                  <button onClick={onLogout} className="text-xs text-slate-500 hover:text-red-600">
-                    Cerrar sesión
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <Link
-              to="/login"
-              title="Iniciar sesión"
-              className="block py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold text-center hover:bg-blue-700"
-            >
-              {abierta ? 'Iniciar sesión' : '→'}
-            </Link>
-          )}
-        </div>
       </div>
     </aside>
   )
