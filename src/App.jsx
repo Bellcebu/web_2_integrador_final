@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Forbidden from "./pages/Forbidden";
 import NotFound from "./pages/NotFound";
 import Products from "./pages/Products";
+import ProductDetail from "./pages/ProductDetail";
 
 // Marcador temporal para las páginas que todavía no están hechas.
 // Cuando una página esté lista, se importa y se reemplaza <Pendiente /> por ella.
@@ -20,7 +21,7 @@ function App() {
         {/* Públicas */}
         <Route path="/" element={<Pendiente nombre="Home" />} />
         <Route path="/productos" element={<Products />} />
-        <Route path="/productos/:id" element={<Pendiente nombre="Detalle" />} />
+        <Route path="/productos/:id" element={<ProductDetail />} />
         <Route path="/login" element={<Login />} />
 
         {/* Requieren sesión (cliente o admin) */}
