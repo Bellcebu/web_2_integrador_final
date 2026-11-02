@@ -188,7 +188,7 @@ src/
 ├── components/      Layout, Navbar, Footer, ProductCard, Estrella, ProtectedRoute, AdminRoute, Loader, ErrorMessage
 ├── pages/           Home, Products, ProductDetail, Login, Cart, Checkout, Forbidden, NotFound
 │   └── admin/       AdminDashboard, AdminProducts, AdminCategories, AdminTags
-├── context/         AuthContext, CartContext
+├── context/         AuthContext, CartContext, useCart
 ├── services/        apiClient, productService, categoryService, tagService, authService, validaciones
 ├── data/            api-fake.json
 ├── styles/
@@ -196,6 +196,29 @@ src/
 ├── main.jsx         Punto de entrada
 └── index.css        Tailwind
 ```
+
+---
+
+## ✅ Casos de prueba
+
+Pruebas manuales realizadas con `npm run dev`, datos reales de la API y las cuentas demo.
+
+### Parte A: Tienda y carrito
+
+| # | Caso | Pasos | Resultado esperado | Resultado obtenido |
+|---|---|---|---|---|
+| A1 | Visitante intenta comprar | Sin sesión, entrar a un producto y tocar "Iniciá sesión para comprar" | Redirige a `/login` y, al iniciar sesión, vuelve al mismo producto | ✅ Redirige a `/login` con el aviso "Necesitás iniciar sesión para continuar"; después del login vuelve a `/productos/:id` |
+| A2 | Cliente agrega artículos y confirma la compra | Como cliente: Detalle → "Agregar al carrito" → Carrito → "Ir a pagar" → "Confirmar compra" | El contador del Navbar sube; el Checkout muestra el resumen y el total; al confirmar aparece el agradecimiento y el carrito queda vacío | ✅ Contador en 1, resumen y total correctos, mensaje "¡Gracias por tu compra!" y carrito vacío (también en `localStorage`) |
+| A3 | Recargar la página conserva el carrito | Agregar productos y recargar con F5 | El carrito y el contador siguen igual | ✅ Se conserva: el carrito se guarda en `localStorage` y se lee al iniciar |
+| A4 | Cambiar cantidades en el carrito | En `/carrito`, tocar "+" y después "−" hasta 0 | "+" suma y recalcula el total; al llegar a 0 el producto se quita | ✅ Con 2 unidades el total se duplicó; al llegar a 0 se mostró "Tu carrito está vacío" |
+| A5 | Filtros combinables en el catálogo | En `/productos`, elegir categoría "Remeras" y orden "Mayor precio" | Solo remeras, de mayor a menor precio | ✅ 2 de 13 productos, ordenados de mayor a menor |
+| A6 | Búsqueda sin resultados | En `/productos`, buscar "zapatilla" | Mensaje de estado vacío | ✅ "No hay productos que coincidan con los filtros." |
+| A7 | Producto inexistente | Entrar a `/productos/99999` | Mensaje de producto no encontrado, sin botón Reintentar | ✅ "Producto no encontrado." con link para volver al catálogo |
+| A8 | Navegación desde el Home | En `/`, tocar una categoría y usar el buscador | Abre el catálogo con el filtro ya aplicado | ✅ "Camperas" abre `/productos?categoria=359` (2 productos); buscar "jean" abre `/productos?buscar=jean` (2 productos) |
+
+### Parte B: Acceso, administración y errores
+
+_Pendiente: la completa Alejandro (acceso a `/admin`, CRUD, dependencias y fallas de red)._
 
 ---
 
