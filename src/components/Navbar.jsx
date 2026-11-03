@@ -36,7 +36,7 @@ function Navbar({ cantidadCarrito = 0, usuario = null, onLogout }) {
     <aside
       onMouseEnter={() => setMouseEncima(true)}
       onMouseLeave={() => setMouseEncima(false)}
-      className={`relative flex flex-col h-full bg-superficie border-r border-borde p-4 whitespace-nowrap transition-all ${abierta ? 'w-64' : 'w-20'
+      className={`relative flex flex-col h-full bg-superficie border-r border-borde p-4 whitespace-nowrap transition-all duration-300 ${abierta ? 'w-64' : 'w-20'
         }`}
     >
       <button
@@ -47,12 +47,33 @@ function Navbar({ cantidadCarrito = 0, usuario = null, onLogout }) {
         {fijada ? '‹' : '›'}
       </button>
 
-      <div className={`flex items-center mb-6 ${abierta ? 'justify-between' : 'justify-center'}`}>
-        {abierta && <p className="text-xl font-black text-texto">Urban Store</p>}
+      {/*
+        Logo animado: el nombre y el "US" están SIEMPRE en la página (no usamos &&),
+        así lo que cambia es su ancho y su opacidad, y "transition" lo hace de a poco.
+      */}
+      <div className="flex items-center justify-between mb-6">
+        <p
+          className={`text-xl font-black text-texto overflow-hidden transition-all duration-300 ${
+            abierta ? 'max-w-40 opacity-100' : 'max-w-0 opacity-0'
+          }`}
+        >
+          Urban Store
+        </p>
 
-        <div className="relative w-12 h-12 flex items-center justify-center">
-          <Estrella className="absolute inset-0 w-full h-full" />
-          {!abierta && <span className="relative mt-1 text-[10px] font-black text-slate-900">US</span>}
+        <div className="relative w-12 h-12 shrink-0 flex items-center justify-center">
+          {/* La estrella gira 72° (una "punta") al abrir: como tiene 5 puntas, termina igual que empezó */}
+          <Estrella
+            className={`absolute inset-0 w-full h-full transition-transform duration-500 ${
+              abierta ? 'rotate-72' : 'rotate-0'
+            }`}
+          />
+          <span
+            className={`relative mt-1 text-[10px] font-black text-slate-900 transition-opacity duration-300 ${
+              abierta ? 'opacity-0' : 'opacity-100'
+            }`}
+          >
+            US
+          </span>
         </div>
       </div>
 
