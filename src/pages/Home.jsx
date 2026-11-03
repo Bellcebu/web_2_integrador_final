@@ -4,6 +4,9 @@ import { getProducts } from '../services/productService'
 import { getCategories } from '../services/categoryService'
 import { getTags } from '../services/tagService'
 import { esCancelacion } from '../services/apiClient'
+import { useTema } from '../context/useTema'
+import fondoClaro from '../assets/fondo-claro.webp'
+import fondoOscuro from '../assets/fondo-oscuro.webp'
 import ProductCard from '../components/ProductCard'
 import Estrella from '../components/Estrella'
 import Loader from '../components/Loader'
@@ -12,6 +15,7 @@ import ErrorMessage from '../components/ErrorMessage'
 // Inicio: /
 function Home() {
   const navigate = useNavigate()
+  const { tema } = useTema()
 
   const [productos, setProductos] = useState([])
   const [categorias, setCategorias] = useState([])
@@ -71,8 +75,11 @@ function Home() {
 
   return (
     <div className="max-w-6xl mx-auto p-6 flex flex-col gap-12">
-      {/* Bienvenida + búsqueda */}
-      <section className="rounded-3xl bg-superficie border border-borde p-8 flex flex-col md:flex-row md:items-center gap-6">
+      {/* Bienvenida + búsqueda. El fondo es una imagen distinta según el tema. */}
+      <section
+        style={{ backgroundImage: `url(${tema === 'oscuro' ? fondoOscuro : fondoClaro})` }}
+        className="rounded-3xl bg-cover bg-center border border-borde p-8 flex flex-col md:flex-row md:items-center gap-6"
+      >
         <Estrella className="w-20 h-20 shrink-0" />
         <div className="flex-1">
           <h1 className="text-3xl font-black text-texto">Urban Store</h1>
@@ -84,7 +91,7 @@ function Home() {
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             placeholder="¿Qué estás buscando?"
-            className="flex-1 px-3 py-2 rounded-lg border border-borde text-sm focus:outline-none focus:border-violet-400"
+            className="flex-1 px-3 py-2 rounded-lg border border-borde bg-superficie/70 text-sm focus:outline-none focus:border-violet-400"
           />
           <button className="px-4 py-2 rounded-lg bg-boton text-boton-texto text-sm font-semibold hover:bg-boton-hover">
             Buscar
