@@ -4,15 +4,20 @@ import { getProducts } from '../services/productService'
 import { getCategories } from '../services/categoryService'
 import { getTags } from '../services/tagService'
 import { esCancelacion } from '../services/apiClient'
+import { useTema } from '../context/useTema'
+import fondoClaro from '../assets/fondo-claro.webp'
+import fondoOscuro from '../assets/fondo-oscuro.webp'
 import ProductCard from '../components/ProductCard'
 import Loader from '../components/Loader'
 import ErrorMessage from '../components/ErrorMessage'
 
 const claseCampo =
-  'px-3 py-2 rounded-lg border border-borde bg-superficie text-sm text-texto-suave focus:outline-none focus:border-violet-400'
+  'px-3 py-2 rounded-lg border border-borde bg-superficie/70 text-sm text-texto-suave focus:outline-none focus:border-violet-400'
 
 // Catálogo: /productos
 function Products() {
+  const { tema } = useTema()
+
   // Datos que llegan de la API
   const [productos, setProductos] = useState([])
   const [categorias, setCategorias] = useState([])
@@ -98,48 +103,54 @@ function Products() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-2xl font-black text-texto mb-6">Productos</h1>
+      {/* Cabecera con título y filtros. El fondo es una imagen distinta según el tema (igual que en el Home). */}
+      <section
+        style={{ backgroundImage: `url(${tema === 'oscuro' ? fondoOscuro : fondoClaro})` }}
+        className="mb-6 p-6 rounded-3xl bg-cover bg-center border border-borde"
+      >
+        <h1 className="text-2xl font-black text-texto mb-4">Productos</h1>
 
-      {/* Filtros: se pueden combinar entre sí */}
-      <div className="flex flex-wrap gap-3 mb-6">
-        <input
-          type="search"
-          value={busqueda}
-          onChange={(e) => cambiarFiltro('buscar', e.target.value)}
-          placeholder="Buscar productos…"
-          className={`${claseCampo} flex-1 min-w-48`}
-        />
+        {/* Filtros: se pueden combinar entre sí */}
+        <div className="flex flex-wrap gap-3">
+          <input
+            type="search"
+            value={busqueda}
+            onChange={(e) => cambiarFiltro('buscar', e.target.value)}
+            placeholder="Buscar productos…"
+            className={`${claseCampo} flex-1 min-w-48`}
+          />
 
-        <select value={categoria} onChange={(e) => cambiarFiltro('categoria', e.target.value)} className={claseCampo}>
-          <option value="">Todas las categorías</option>
-          {categorias.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.title}
-            </option>
-          ))}
-        </select>
+          <select value={categoria} onChange={(e) => cambiarFiltro('categoria', e.target.value)} className={claseCampo}>
+            <option value="">Todas las categorías</option>
+            {categorias.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.title}
+              </option>
+            ))}
+          </select>
 
-        <select value={tag} onChange={(e) => cambiarFiltro('tag', e.target.value)} className={claseCampo}>
-          <option value="">Todos los tags</option>
-          {tags.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.title}
-            </option>
-          ))}
-        </select>
+          <select value={tag} onChange={(e) => cambiarFiltro('tag', e.target.value)} className={claseCampo}>
+            <option value="">Todos los tags</option>
+            {tags.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.title}
+              </option>
+            ))}
+          </select>
 
-        <select value={orden} onChange={(e) => cambiarFiltro('orden', e.target.value)} className={claseCampo}>
-          <option value="">Ordenar por precio</option>
-          <option value="menor">Menor precio</option>
-          <option value="mayor">Mayor precio</option>
-        </select>
+          <select value={orden} onChange={(e) => cambiarFiltro('orden', e.target.value)} className={claseCampo}>
+            <option value="">Ordenar por precio</option>
+            <option value="menor">Menor precio</option>
+            <option value="mayor">Mayor precio</option>
+          </select>
 
-        {hayFiltros && (
-          <button onClick={limpiarFiltros} className="text-sm text-texto-suave hover:text-violet-600">
-            Limpiar filtros
-          </button>
-        )}
-      </div>
+          {hayFiltros && (
+            <button onClick={limpiarFiltros} className="text-sm text-texto-suave hover:text-violet-600">
+              Limpiar filtros
+            </button>
+          )}
+        </div>
+      </section>
 
       <p className="text-sm text-texto-suave mb-4">
         {productosFiltrados.length} de {productos.length} productos
