@@ -1,11 +1,15 @@
 import { Link } from 'react-router-dom'
 import Estrella from './Estrella'
+import { useTema } from '../context/useTema'
+import fondoClaro from '../assets/fondo-claro.webp'
+import fondoOscuro from '../assets/fondo-oscuro.webp'
 
 // Tarjeta de un producto. Toda la tarjeta es un link al detalle: /productos/:id
 // "producto" tiene la forma del contrato: { id, title, price, pictures, category, tags }
 function ProductCard({ producto }) {
   // Usamos la primera imagen (si el producto no tiene, queda "undefined")
   const imagen = producto.pictures?.[0]
+  const { tema } = useTema()
 
   return (
     <Link
@@ -39,7 +43,11 @@ function ProductCard({ producto }) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-1 p-3">
+      {/* Nombre y precio: mismo fondo que la bienvenida del Home, según el tema */}
+      <div
+        style={{ backgroundImage: `url(${tema === 'oscuro' ? fondoOscuro : fondoClaro})` }}
+        className="flex flex-1 flex-col gap-1 p-3 bg-cover bg-center"
+      >
         <p className="text-xs text-texto-suave">{producto.category?.title}</p>
         <p className="font-semibold text-texto line-clamp-2">{producto.title}</p>
         <p className="mt-auto pt-1 text-lg font-black text-texto">
