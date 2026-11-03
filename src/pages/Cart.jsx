@@ -1,15 +1,23 @@
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/useCart'
+import { useSincronizarCarrito } from '../context/useSincronizarCarrito'
 import Estrella from '../components/Estrella'
 
 // Carrito: /carrito (la ruta ya está protegida: solo entra quien inició sesión)
 function Cart() {
   const { items, quitar, cambiarCantidad, vaciar, cantidadTotal, subtotal } = useCart()
+  // Actualiza precios y quita productos que el admin borró; devuelve un aviso si algo cambió
+  const aviso = useSincronizarCarrito()
 
   // Carrito vacío: no hay nada que listar
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center gap-3 py-24 text-center">
+        {aviso && (
+          <p role="status" className="p-3 rounded-xl bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-200 text-sm">
+            {aviso}
+          </p>
+        )}
         <Estrella className="w-16 h-16 opacity-60" />
         <p className="font-bold text-texto">Tu carrito está vacío</p>
         <Link to="/productos" className="text-sm text-violet-600 hover:underline">
@@ -22,6 +30,11 @@ function Cart() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-2xl font-black text-texto mb-6">Mi carrito</h1>
+      {aviso && (
+        <p role="status" className="mb-4 p-3 rounded-xl bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-200 text-sm">
+          {aviso}
+        </p>
+      )}
 
       <div className="flex flex-col gap-3">
         {items.map((item) => (

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/useCart'
 import { useAuth } from '../context/AuthContext'
+import { useSincronizarCarrito } from '../context/useSincronizarCarrito'
 import Estrella from '../components/Estrella'
 
 // Checkout: /checkout (la ruta ya está protegida: solo entra quien inició sesión)
@@ -9,6 +10,8 @@ import Estrella from '../components/Estrella'
 function Checkout() {
   const { items, vaciar, cantidadTotal, subtotal } = useCart()
   const { user } = useAuth()
+  // Antes de confirmar, nos aseguramos de cobrar (simuladamente) los precios actuales
+  const aviso = useSincronizarCarrito()
   // Pasa a true cuando el usuario confirma la compra
   const [confirmada, setConfirmada] = useState(false)
 
@@ -35,6 +38,11 @@ function Checkout() {
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center gap-3 py-24 text-center">
+        {aviso && (
+          <p role="status" className="p-3 rounded-xl bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-200 text-sm">
+            {aviso}
+          </p>
+        )}
         <Estrella className="w-16 h-16 opacity-60" />
         <p className="font-bold text-texto">No hay nada para pagar</p>
         <Link to="/productos" className="text-sm text-violet-600 hover:underline">
@@ -47,6 +55,11 @@ function Checkout() {
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-2xl font-black text-texto mb-6">Confirmar compra</h1>
+      {aviso && (
+        <p role="status" className="mb-4 p-3 rounded-xl bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-200 text-sm">
+          {aviso}
+        </p>
+      )}
 
       <div className="p-4 bg-superficie rounded-2xl border border-borde">
         <ul className="divide-y divide-borde">

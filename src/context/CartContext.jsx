@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react'
 import { CartContext } from './useCart'
+import { useAuth } from './AuthContext'
 
-// Nombre con el que guardamos el carrito en el localStorage del navegador
-const CLAVE = 'carrito'
+// Cada usuario tiene su propio carrito en localStorage: "carrito:cliente", "carrito:admin"...
+// El visitante no tiene carrito (para comprar hay que iniciar sesión).
+function claveDe(user) {
+  return user ? `carrito:${user.username}` : null
+}
 
 // Lee el carrito guardado. Si no hay nada (o está roto), arranca vacío.
-function leerCarritoGuardado() {
+function leerCarritoGuardado(clave) {
+  if (!clave) return []
   try {
-    const guardado = localStorage.getItem(CLAVE)
+    const guardado = localStorage.getItem(clave)
     return guardado ? JSON.parse(guardado) : []
   } catch {
     return []
@@ -16,14 +21,30 @@ function leerCarritoGuardado() {
 
 // CartProvider envuelve la app y guarda el carrito para todos los componentes de adentro
 export function CartProvider({ children }) {
-  // Lista de productos en el carrito. Cada uno: { id, title, price, imagen, cantidad }
-  // Arranca con lo que haya guardado (así no se pierde al recargar la página)
-  const [items, setItems] = useState(leerCarritoGuardado)
+  const { user } = useAuth()
+  const clave = claveDe(user)
 
-  // Cada vez que "items" cambia, lo guardamos en localStorage
+  // Guardamos de quién es el carrito ("clave") junto con sus productos.
+  // Cada producto: { id, title, price, imagen, cantidad }
+  const [carrito, setCarrito] = useState(() => ({ clave, items: leerCarritoGuardado(clave) }))
+
+  // Si cambió el usuario (login / logout), cargamos SU carrito.
+  // Es el patrón de React para "ajustar el estado cuando cambia un dato": se hace durante el render.
+  if (carrito.clave !== clave) {
+    setCarrito({ clave, items: leerCarritoGuardado(clave) })
+  }
+
+  const items = carrito.items
+
+  // Cada vez que el carrito cambia, lo guardamos en localStorage (solo si hay usuario)
   useEffect(() => {
-    localStorage.setItem(CLAVE, JSON.stringify(items))
-  }, [items])
+    if (carrito.clave) localStorage.setItem(carrito.clave, JSON.stringify(carrito.items))
+  }, [carrito])
+
+  // Reemplaza la lista de productos del carrito actual (siempre con una lista NUEVA)
+  function setItems(nuevosItems) {
+    setCarrito((actual) => ({ ...actual, items: nuevosItems }))
+  }
 
   function agregar(producto) {
     const yaEsta = items.find((item) => item.id === producto.id)
@@ -68,13 +89,53 @@ export function CartProvider({ children }) {
     setItems([])
   }
 
+  /**
+   * El carrito guarda una copia del producto (título, precio, imagen).
+   * Si el admin lo editó o lo borró, esa copia quedó vieja: la actualizamos con el catálogo actual.
+   * Devuelve qué cambió, para poder avisarle al usuario.
+   */
+  function actualizarConCatalogo(productosActuales) {
+    const porId = new Map(productosActuales.map((producto) => [producto.id, producto]))
+
+    // Se calcula sobre el estado MÁS RECIENTE (actual), porque esto se llama
+    // después de un fetch y mientras tanto el carrito pudo cambiar.
+    setCarrito((actual) => {
+      const actualizados = actual.items
+        .filter((item) => porId.has(item.id))
+        .map((item) => {
+          const producto = porId.get(item.id)
+          return { ...item, title: producto.title, price: producto.price, imagen: producto.pictures[0] }
+        })
+      // Si nada cambió devolvemos el mismo estado: React no re-renderiza ni guarda de nuevo
+      return JSON.stringify(actualizados) === JSON.stringify(actual.items)
+        ? actual
+        : { ...actual, items: actualizados }
+    })
+
+    return {
+      eliminados: items.filter((item) => !porId.has(item.id)),
+      conPrecioNuevo: items.filter(
+        (item) => porId.has(item.id) && porId.get(item.id).price !== item.price
+      ),
+    }
+  }
+
   // No son useState: se calculan a partir de "items" cada vez que el carrito cambia
   const cantidadTotal = items.reduce((total, item) => total + item.cantidad, 0)
   const subtotal = items.reduce((total, item) => total + item.price * item.cantidad, 0)
 
   return (
     <CartContext
-      value={{ items, agregar, quitar, cambiarCantidad, vaciar, cantidadTotal, subtotal }}
+      value={{
+        items,
+        agregar,
+        quitar,
+        cambiarCantidad,
+        vaciar,
+        actualizarConCatalogo,
+        cantidadTotal,
+        subtotal,
+      }}
     >
       {children}
     </CartContext>

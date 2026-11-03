@@ -21,7 +21,16 @@ const items = [
   },
 ]
 
-function Navbar({ cantidadCarrito = 0, usuario = null, onLogout }) {
+// Solo lo ve el administrador
+const itemAdmin = {
+  to: '/admin',
+  label: 'Administración',
+  icon: 'M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z',
+}
+
+function Navbar({ cantidadCarrito = 0, usuario = null, esAdmin = false, onLogout }) {
+  const itemsVisibles = esAdmin ? [...items, itemAdmin] : items
+
   // "fijada": la maneja la flechita (queda abierta aunque saques el mouse)
   const [fijada, setFijada] = useState(window.innerWidth >= 768)
   // "mouseEncima": se abre mientras el mouse está sobre la sidebar
@@ -78,7 +87,7 @@ function Navbar({ cantidadCarrito = 0, usuario = null, onLogout }) {
       </div>
 
       <nav className="flex flex-col gap-1">
-        {items.map((item) => (
+        {itemsVisibles.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
@@ -86,8 +95,8 @@ function Navbar({ cantidadCarrito = 0, usuario = null, onLogout }) {
             title={item.label}
             className={({ isActive }) =>
               isActive
-                ? 'flex items-center gap-3 px-3 py-2 rounded-lg bg-blue-50 text-blue-600 font-semibold dark:bg-blue-950 dark:text-blue-300'
-                : 'flex items-center gap-3 px-3 py-2 rounded-lg text-texto-suave hover:bg-suave'
+                ? 'flex items-center gap-3 h-10 px-3 rounded-lg bg-blue-50 text-blue-600 font-semibold dark:bg-blue-950 dark:text-blue-300'
+                : 'flex items-center gap-3 h-10 px-3 rounded-lg text-texto-suave hover:bg-suave'
             }
           >
             {/* "relative" para poder ubicar la bolita del carrito encima del ícono */}
@@ -117,7 +126,7 @@ function Navbar({ cantidadCarrito = 0, usuario = null, onLogout }) {
         <button
           onClick={cambiarTema}
           title={tema === 'oscuro' ? 'Modo claro' : 'Modo oscuro'}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-texto-suave hover:bg-suave"
+          className="flex items-center gap-3 h-10 px-3 rounded-lg text-texto-suave hover:bg-suave"
         >
           <span className="w-5 text-center">{tema === 'oscuro' ? '☀️' : '🌙'}</span>
           {abierta && (tema === 'oscuro' ? 'Modo claro' : 'Modo oscuro')}
@@ -125,19 +134,24 @@ function Navbar({ cantidadCarrito = 0, usuario = null, onLogout }) {
 
         <div className="border-t border-borde pt-4">
           {usuario ? (
-            <div className="flex items-center gap-3">
+            // Todo el bloque (avatar + nombre) es el botón: tocar en cualquier parte cierra la sesión
+            <button
+              type="button"
+              onClick={onLogout}
+              title="Cerrar sesión"
+              // px-1: el centro del círculo queda alineado con los íconos del menú, abierto o cerrado
+              className="group w-full flex items-center gap-3 px-1 py-2 rounded-lg text-left hover:bg-suave"
+            >
               <span className="w-9 h-9 shrink-0 flex items-center justify-center rounded-full bg-blue-600 text-white font-bold">
                 {usuario[0]}
               </span>
               {abierta && (
-                <div>
-                  <p className="text-sm font-semibold text-texto">{usuario}</p>
-                  <button onClick={onLogout} className="text-xs text-texto-suave hover:text-red-600">
-                    Cerrar sesión
-                  </button>
-                </div>
+                <span className="flex flex-col justify-center leading-tight">
+                  <span className="text-sm font-semibold text-texto">{usuario}</span>
+                  <span className="text-xs text-texto-suave group-hover:text-red-600">Cerrar sesión</span>
+                </span>
               )}
-            </div>
+            </button>
           ) : (
             <Link
               to="/login"

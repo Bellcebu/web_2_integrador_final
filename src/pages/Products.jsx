@@ -22,14 +22,26 @@ function Products() {
   // Cada vez que sube este número, el useEffect vuelve a pedir los datos (botón "Reintentar")
   const [intento, setIntento] = useState(0)
 
-  // Desde el Home se puede llegar con filtros en la URL: /productos?buscar=jean o ?categoria=357
-  const [searchParams] = useSearchParams()
+  // Los filtros viven en la URL: /productos?buscar=jean&categoria=357&tag=2&orden=menor
+  // Así se pueden compartir, el botón "atrás" funciona y el link "Productos" del menú los limpia.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const busqueda = searchParams.get('buscar') ?? ''
+  const categoria = searchParams.get('categoria') ?? ''
+  const tag = searchParams.get('tag') ?? ''
+  const orden = searchParams.get('orden') ?? ''
 
-  // Filtros que elige el usuario ('' = sin filtro). Arrancan con lo que venga en la URL.
-  const [busqueda, setBusqueda] = useState(searchParams.get('buscar') ?? '')
-  const [categoria, setCategoria] = useState(searchParams.get('categoria') ?? '')
-  const [tag, setTag] = useState('')
-  const [orden, setOrden] = useState('')
+  // Cambia un filtro en la URL ('' lo quita). "replace" evita llenar el historial al escribir.
+  function cambiarFiltro(nombre, valor) {
+    setSearchParams(
+      (actuales) => {
+        const nuevos = new URLSearchParams(actuales)
+        if (valor === '') nuevos.delete(nombre)
+        else nuevos.set(nombre, valor)
+        return nuevos
+      },
+      { replace: true }
+    )
+  }
 
   useEffect(() => {
     // Sirve para cancelar el pedido si el usuario se va de la página antes de que llegue
@@ -76,10 +88,7 @@ function Products() {
   const hayFiltros = busqueda !== '' || categoria !== '' || tag !== '' || orden !== ''
 
   function limpiarFiltros() {
-    setBusqueda('')
-    setCategoria('')
-    setTag('')
-    setOrden('')
+    setSearchParams({}, { replace: true })
   }
 
   if (cargando) return <Loader texto="Cargando productos…" />
@@ -96,12 +105,12 @@ function Products() {
         <input
           type="search"
           value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
+          onChange={(e) => cambiarFiltro('buscar', e.target.value)}
           placeholder="Buscar productos…"
           className={`${claseCampo} flex-1 min-w-48`}
         />
 
-        <select value={categoria} onChange={(e) => setCategoria(e.target.value)} className={claseCampo}>
+        <select value={categoria} onChange={(e) => cambiarFiltro('categoria', e.target.value)} className={claseCampo}>
           <option value="">Todas las categorías</option>
           {categorias.map((c) => (
             <option key={c.id} value={c.id}>
@@ -110,7 +119,7 @@ function Products() {
           ))}
         </select>
 
-        <select value={tag} onChange={(e) => setTag(e.target.value)} className={claseCampo}>
+        <select value={tag} onChange={(e) => cambiarFiltro('tag', e.target.value)} className={claseCampo}>
           <option value="">Todos los tags</option>
           {tags.map((t) => (
             <option key={t.id} value={t.id}>
@@ -119,7 +128,7 @@ function Products() {
           ))}
         </select>
 
-        <select value={orden} onChange={(e) => setOrden(e.target.value)} className={claseCampo}>
+        <select value={orden} onChange={(e) => cambiarFiltro('orden', e.target.value)} className={claseCampo}>
           <option value="">Ordenar por precio</option>
           <option value="menor">Menor precio</option>
           <option value="mayor">Mayor precio</option>

@@ -6,7 +6,7 @@ import Footer from "./Footer";
 
 // Estructura común de todas las páginas: sidebar + contenido + footer
 function Layout() {
-  const { user, logout } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
   const { cantidadTotal } = useCart();
   const navigate = useNavigate();
 
@@ -19,6 +19,7 @@ function Layout() {
     <div className="flex h-screen bg-fondo">
       <Navbar
         usuario={user?.nombre ?? null}
+        esAdmin={isAdmin}
         onLogout={cerrarSesion}
         cantidadCarrito={cantidadTotal}
       />
