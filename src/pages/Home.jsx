@@ -73,6 +73,16 @@ function Home() {
   )
   const destacados = conTagDestacado.length > 0 ? conTagDestacado : productos.slice(0, 5)
 
+  // Ofertas: los productos con un tag de "Oferta" o "Promoción". Si todavía no hay, los 8 más baratos.
+  // Ordenamos una COPIA ([...productos]) para no modificar el estado.
+  const conTagOferta = productos.filter((p) =>
+    p.tags.some((t) => /oferta|promo/i.test(t.title))
+  )
+  const ofertas =
+    conTagOferta.length > 0
+      ? conTagOferta.slice(0, 8)
+      : [...productos].sort((a, b) => a.price - b.price).slice(0, 8)
+
   const secciones = tags
     .map((tag) => ({
       tag,
@@ -156,17 +166,17 @@ function Home() {
         </section>
       ))}
 
-      {/* Novedades: siempre hay algo para ver, aunque todavía no haya tags */}
-      {productos.length > 0 && (
+      {/* Ofertas: siempre hay algo para ver, aunque todavía no haya tags */}
+      {ofertas.length > 0 && (
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-black text-texto">Novedades</h2>
-            <Link to="/productos" className="text-sm text-violet-600 hover:underline">
-              Ver todos →
+            <h2 className="text-xl font-black text-texto">Ofertas</h2>
+            <Link to="/productos?orden=menor" className="text-sm text-violet-600 hover:underline">
+              Ver todas →
             </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {productos.slice(0, 8).map((producto) => (
+            {ofertas.map((producto) => (
               <ProductCard key={producto.id} producto={producto} />
             ))}
           </div>
