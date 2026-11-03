@@ -8,6 +8,7 @@ import { useTema } from '../context/useTema'
 import fondoClaro from '../assets/fondo-claro.webp'
 import fondoOscuro from '../assets/fondo-oscuro.webp'
 import ProductCard from '../components/ProductCard'
+import Carrusel from '../components/Carrusel'
 import Estrella from '../components/Estrella'
 import Loader from '../components/Loader'
 import ErrorMessage from '../components/ErrorMessage'
@@ -66,6 +67,12 @@ function Home() {
   }
 
   // Una sección por cada tag, solo si tiene productos (si no hay tags, no se muestra ninguna)
+  // Destacados: los productos con un tag que diga "Destacado". Si todavía no existe, los primeros 5.
+  const conTagDestacado = productos.filter((p) =>
+    p.tags.some((t) => t.title.toLowerCase().includes('destacad'))
+  )
+  const destacados = conTagDestacado.length > 0 ? conTagDestacado : productos.slice(0, 5)
+
   const secciones = tags
     .map((tag) => ({
       tag,
@@ -98,6 +105,9 @@ function Home() {
           </button>
         </form>
       </section>
+
+      {/* Carrusel de destacados */}
+      <Carrusel productos={destacados} />
 
       {/* Categorías: cada una lleva al catálogo ya filtrado */}
       {categorias.length > 0 && (
