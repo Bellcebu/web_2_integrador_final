@@ -1,3 +1,4 @@
+// Login: formulario con validación y cuentas demo. Al entrar vuelve a la ruta de origen o va según el rol.
 import { useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -24,7 +25,6 @@ function Login() {
 
     try {
       const usuario = login(username, password);
-      // Si venía de una ruta protegida, vuelve ahí; si no, según el rol
       const siguiente = destino ?? (usuario.role === "admin" ? "/admin" : "/");
       navigate(siguiente, { replace: true });
     } catch (errorLogin) {
@@ -38,7 +38,6 @@ function Login() {
     setError("");
   }
 
-  // Si ya hay sesión, no tiene sentido mostrar el formulario
   if (user && !destino) {
     return (
       <section className="max-w-md mx-auto px-6 py-16 text-center">

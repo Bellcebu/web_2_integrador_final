@@ -9,6 +9,7 @@ import fondoClaro from '../assets/fondo-claro.webp'
 import fondoOscuro from '../assets/fondo-oscuro.webp'
 import ProductCard from '../components/ProductCard'
 import Carrusel from '../components/Carrusel'
+import { esTagDestacado, esTagOferta } from '../services/tagsEspeciales'
 import Estrella from '../components/Estrella'
 import Loader from '../components/Loader'
 import ErrorMessage from '../components/ErrorMessage'
@@ -66,24 +67,20 @@ function Home() {
     return <ErrorMessage mensaje={error} onReintentar={() => setIntento(intento + 1)} />
   }
 
-  // Una sección por cada tag, solo si tiene productos (si no hay tags, no se muestra ninguna)
-  // Destacados: los productos con un tag que diga "Destacado". Si todavía no existe, los primeros 5.
-  const conTagDestacado = productos.filter((p) =>
-    p.tags.some((t) => t.title.toLowerCase().includes('destacad'))
-  )
-  const destacados = conTagDestacado.length > 0 ? conTagDestacado : productos.slice(0, 5)
+  // Tags "especiales": tienen su propia sección arriba, así que no se repiten abajo
+  const esDestacado = esTagDestacado
+  const esOferta = esTagOferta
 
-  // Ofertas: los productos con un tag de "Oferta" o "Promoción". Si todavía no hay, los 8 más baratos.
-  // Ordenamos una COPIA ([...productos]) para no modificar el estado.
-  const conTagOferta = productos.filter((p) =>
-    p.tags.some((t) => /oferta|promo/i.test(t.title))
-  )
-  const ofertas =
-    conTagOferta.length > 0
-      ? conTagOferta.slice(0, 8)
-      : [...productos].sort((a, b) => a.price - b.price).slice(0, 8)
+  // Destacados (carrusel): productos con un tag "Destacado". Si no hay ninguno, no se muestra.
+  const destacados = productos.filter((p) => p.tags.some(esDestacado))
 
+  // Ofertas: productos con un tag "Oferta" o "Promoción". Si no hay ninguno, no se muestra.
+  const ofertas = productos.filter((p) => p.tags.some(esOferta)).slice(0, 8)
+  const tagOferta = tags.find(esOferta)
+
+  // Una sección por cada tag común, solo si tiene productos (si no hay tags, no se muestra ninguna)
   const secciones = tags
+    .filter((tag) => !esDestacado(tag) && !esOferta(tag))
     .map((tag) => ({
       tag,
       productos: productos.filter((p) => p.tags.some((t) => t.id === tag.id)),
@@ -166,12 +163,12 @@ function Home() {
         </section>
       ))}
 
-      {/* Ofertas: siempre hay algo para ver, aunque todavía no haya tags */}
+      {/* Ofertas: solo si el admin marcó productos con el tag de oferta */}
       {ofertas.length > 0 && (
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-black text-texto">Ofertas</h2>
-            <Link to="/productos?orden=menor" className="text-sm text-violet-600 hover:underline">
+            <Link to={tagOferta ? `/productos?tag=${tagOferta.id}` : '/productos'} className="text-sm text-violet-600 hover:underline">
               Ver todas →
             </Link>
           </div>

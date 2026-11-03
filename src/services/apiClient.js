@@ -1,14 +1,10 @@
-// Cliente HTTP común a todos los servicios.
-// Todas las peticiones van a /api/... y el proxy de Vite (vite.config.js)
-// las reenvía a la API agregando el token. El token NUNCA está en este código.
+// Cliente HTTP de todos los servicios: arma la URL, hace el fetch a /api (el proxy de Vite agrega el token)
+// y convierte las respuestas de error en un ApiError con un tipo: red, no-autorizado, no-encontrado, validacion o servidor.
 
 const BASE_URL = "/api";
 
-// Las imágenes son públicas y la API las devuelve como ruta relativa (/uploads/...)
 export const API_ORIGIN = "https://ecommerce.fedegonzalez.com";
 
-// Error con información extra para que la interfaz pueda distinguir casos:
-// tipo: "red" | "no-autorizado" | "no-encontrado" | "validacion" | "servidor"
 export class ApiError extends Error {
   constructor(mensaje, { status = 0, tipo = "servidor" } = {}) {
     super(mensaje);
@@ -18,20 +14,16 @@ export class ApiError extends Error {
   }
 }
 
-// Cuando un componente se desmonta cancelamos el fetch con AbortController.
-// Ese "error" no hay que mostrarlo: se ignora.
 export function esCancelacion(error) {
   return error?.name === "AbortError";
 }
 
-// Convierte "/uploads/foto.jpg" en una URL completa. Deja igual las que ya son completas.
 export function urlImagen(ruta) {
   if (!ruta) return null;
   if (/^https?:\/\//.test(ruta)) return ruta;
   return `${API_ORIGIN}${ruta.startsWith("/") ? "" : "/"}${ruta}`;
 }
 
-// FastAPI devuelve "detail" como texto o como lista de errores de validación
 function leerDetalle(cuerpo) {
   const detalle = cuerpo?.detail;
   if (typeof detalle === "string") return detalle;
@@ -63,11 +55,6 @@ function errorSegunStatus(status, detalle) {
   return new ApiError(detalle || `Error inesperado (HTTP ${status}).`, { status });
 }
 
-/**
- * Hace una petición a la API.
- * @param {string} endpoint  Ej: "/products/" o "/products/12" (los listados terminan en "/")
- * @param {object} opciones  { method, body, params, signal }
- */
 export async function apiRequest(endpoint, { method = "GET", body, params, signal } = {}) {
   let url = `${BASE_URL}${endpoint}`;
 
@@ -80,7 +67,9 @@ export async function apiRequest(endpoint, { method = "GET", body, params, signa
   }
 
   const opciones = { method, signal, headers: { Accept: "application/json" } };
-  if (body !== undefined) {
+  if (body instanceof FormData) {
+    opciones.body = body;
+  } else if (body !== undefined) {
     opciones.headers["Content-Type"] = "application/json";
     opciones.body = JSON.stringify(body);
   }
@@ -89,13 +78,12 @@ export async function apiRequest(endpoint, { method = "GET", body, params, signa
   try {
     respuesta = await fetch(url, opciones);
   } catch (error) {
-    if (esCancelacion(error)) throw error; // cancelado a propósito: no es un error real
+    if (esCancelacion(error)) throw error;
     throw new ApiError("No se pudo conectar con el servidor. Revisá tu conexión a internet.", {
       tipo: "red",
     });
   }
 
-  // El cuerpo puede venir vacío o no ser JSON (por ejemplo un error del proxy)
   const texto = await respuesta.text();
   let cuerpo = null;
   try {

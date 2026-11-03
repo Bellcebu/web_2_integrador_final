@@ -48,7 +48,7 @@ function Carrusel({ productos }) {
           <div
             key={producto.id}
             style={{ backgroundImage: `url(${fondo})` }}
-            className="w-full shrink-0 bg-cover bg-center flex flex-col-reverse md:flex-row items-center gap-6 px-16 py-8 md:h-80"
+            className="w-full shrink-0 bg-cover bg-center flex flex-col-reverse md:flex-row items-center gap-6 pl-20 pr-16 md:pl-32 md:pr-24 py-8 md:h-80"
           >
             <div className="flex-1 flex flex-col items-start gap-2">
               <span className="text-xs font-bold uppercase tracking-widest text-violet-600 dark:text-violet-300">

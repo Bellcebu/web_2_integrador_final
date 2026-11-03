@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/useCart'
 import { useAuth } from '../context/AuthContext'
-import { useSincronizarCarrito } from '../context/useSincronizarCarrito'
+import { useSincronizarCarrito } from '../hooks/useSincronizarCarrito'
 import Estrella from '../components/Estrella'
 
 // Checkout: /checkout (la ruta ya está protegida: solo entra quien inició sesión)

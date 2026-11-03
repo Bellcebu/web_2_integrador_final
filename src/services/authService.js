@@ -1,6 +1,5 @@
-// Autenticación SIMULADA para la práctica.
-// Las cuentas son de demostración y ficticias: no son credenciales reales.
-// Esto no reemplaza la autorización de un servidor: cualquiera puede leer este código.
+// Autenticación simulada con cuentas demo (no son credenciales reales). Guarda la sesión en localStorage
+// y exigirAdmin() bloquea las operaciones de escritura si el usuario no es admin.
 
 export const ROLES = {
   ADMIN: "admin",
@@ -14,7 +13,6 @@ const CUENTAS_DEMO = [
 
 const CLAVE_SESION = "urban-store:sesion";
 
-// Devuelve el usuario sin la contraseña (nunca la guardamos ni la exponemos)
 function datosPublicos(cuenta) {
   return { username: cuenta.username, nombre: cuenta.nombre, role: cuenta.role };
 }
@@ -31,7 +29,6 @@ export function login(username, password) {
   }
 
   const usuario = datosPublicos(cuenta);
-  // Guardamos solo el username: el rol se vuelve a leer de CUENTAS_DEMO al cargar
   localStorage.setItem(CLAVE_SESION, JSON.stringify({ username: usuario.username }));
   return usuario;
 }
@@ -40,7 +37,6 @@ export function logout() {
   localStorage.removeItem(CLAVE_SESION);
 }
 
-// Recupera la sesión guardada. Si está corrupta o el usuario no existe, devuelve null.
 export function obtenerSesion() {
   try {
     const guardado = JSON.parse(localStorage.getItem(CLAVE_SESION));
@@ -51,8 +47,6 @@ export function obtenerSesion() {
   }
 }
 
-// Validación de rol en la capa de servicio: los servicios la llaman
-// antes de crear, editar o borrar productos, categorías y tags.
 export function exigirAdmin() {
   const usuario = obtenerSesion();
 
@@ -71,7 +65,6 @@ export function exigirAdmin() {
   return usuario;
 }
 
-// Solo para mostrar las cuentas en la pantalla de login (demo)
 export const CUENTAS_PARA_MOSTRAR = CUENTAS_DEMO.map((cuenta) => ({
   username: cuenta.username,
   password: cuenta.password,

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/useCart'
-import { useSincronizarCarrito } from '../context/useSincronizarCarrito'
+import { useSincronizarCarrito } from '../hooks/useSincronizarCarrito'
 import Estrella from '../components/Estrella'
 
 // Carrito: /carrito (la ruta ya está protegida: solo entra quien inició sesión)
