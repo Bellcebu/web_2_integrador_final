@@ -1,4 +1,4 @@
-# web_2_integrador_final
+# Urban Store · web_2_integrador_final
 
 **E-commerce SPA en React con roles, rutas protegidas y API REST**
 Trabajo Práctico Integrador Final · Desarrollo Web 2
@@ -32,11 +32,11 @@ UNTDF · Tecnicatura Universitaria en Desarrollo de Aplicaciones
   - `fetch` con `async/await`, `try/catch` y control de `response.ok`.
   - Distinción de errores de red, 401/403 y 404.
   - Normalización de productos, categorías y tags.
-  - Persistencia simulada de los cambios en `localStorage`.
-  - Validación del rol en la capa de servicio antes de cada escritura.
+  - Escrituras (`POST`, `PUT`, `DELETE`) y subida de imágenes contra la API real.
+  - Validación del rol y de los datos en la capa de servicio antes de cada escritura.
 - **AuthContext**, cuentas demo y pantalla de **Login** (`/login`).
 - **ProtectedRoute**, **AdminRoute** y las páginas `/403` y 404.
-- **Panel de administración** (`/admin`): CRUD de productos, categorías y tags, con tablas, formularios, validaciones y confirmación antes de borrar.
+- **Panel de administración** (`/admin/*`): CRUD de productos, categorías y tags, con tablas, formularios, validaciones, subida de imágenes y confirmación antes de borrar.
 - Resolución de referencias y dependencias (por ejemplo, eliminar una categoría con productos asociados).
 - Casos de prueba de acceso, CRUD y fallas de red.
 
@@ -89,7 +89,7 @@ La aplicación queda disponible en `http://localhost:5173`.
 | Variable | Descripción |
 |---|---|
 | `API_URL` | URL de la API de la cátedra (por defecto `https://ecommerce.fedegonzalez.com`) |
-| `API_TOKEN` | Token personal para la API. **Se pide a la cátedra; no está en el repositorio.** |
+| `API_TOKEN` | La API de prueba acepta cualquier token: el del equipo lo comparte el grupo por privado. **No está en el repositorio.** |
 
 - El archivo `.env` está en `.gitignore` y **nunca se sube**; el repositorio solo incluye `.env.example` con `API_TOKEN` vacío.
 - Las variables **no llevan el prefijo `VITE_`** a propósito: Vite solo expone al navegador las variables `VITE_*`, así que `API_TOKEN` queda únicamente en el proceso de Node que corre el servidor.
@@ -141,7 +141,7 @@ La aplicación queda disponible en `http://localhost:5173`.
 | `/login` | Público |
 | `/carrito` | Requiere sesión (`ProtectedRoute`) |
 | `/checkout` | Requiere sesión (`ProtectedRoute`) |
-| `/admin` | Solo admin (`AdminRoute`) |
+| `/admin` | Solo admin (`AdminRoute`); redirige a `/admin/productos` |
 | `/admin/productos` | Solo admin (`AdminRoute`) |
 | `/admin/categorias` | Solo admin (`AdminRoute`) |
 | `/admin/tags` | Solo admin (`AdminRoute`) |
@@ -178,24 +178,55 @@ Navegador (React) ──► /api/products/ ──► Proxy de Vite (agrega el to
 - **Categoría:** `id`, `title`, `description`, `picture`.
 - **Tag:** `id`, `title`.
 
-Cada producto referencia **una categoría** y **cero o más tags**.
+Cada producto referencia **una categoría** (obligatoria en el formulario) y **cero o más tags**.
 
+### Referencias, edición y eliminación con dependencias
+
+**Referencias:** el producto guarda `category_id` y la API devuelve además la `category` y los `tags` completos dentro de cada producto. El frontend no tiene que cruzar listas para mostrarlos. En el panel admin se cargan las tres listas juntas para poder contar cuántos productos usa cada categoría y cada tag.
+
+**Edición:** al editar un producto se envían `category_id` y `tag_ids` (la lista completa de tags elegidos). Así se cambian la categoría y los tags en una sola operación.
+
+**Eliminación:** comportamiento verificado contra la API.
+
+| Se elimina… | Qué hace la API | Regla de la app |
+|---|---|---|
+| Una **categoría** con productos | La borra y deja a sus productos **sin categoría** (`category_id: null`) | **No se permite**: el botón "Eliminar" queda deshabilitado e indica cuántos productos tiene. Primero hay que mover esos productos a otra categoría. |
+| Un **tag** usado por productos | Lo borra y lo **quita de los productos** que lo tenían | **Se permite**: la confirmación avisa a cuántos productos afecta. |
+| Un **producto** que está en un carrito | Lo borra | Al entrar al Carrito o al Checkout se compara con el catálogo: los productos borrados se quitan y los precios cambiados se actualizan, con un aviso al usuario. |
+
+### Imágenes de productos
+- Se suben desde el formulario del producto (`POST /products/{id}/pictures`, multipart) y **se suman** a las que ya tiene. La API no permite borrarlas.
+- La API acepta cualquier archivo (incluso un `.txt`), así que el frontend valida que sea **JPG, PNG, WEBP o GIF de hasta 5 MB**.
+
+### Tags especiales del Home
+- Los productos con el tag **"Destacado"** aparecen en el carrusel del Home.
+- Los productos con el tag **"Oferta"** o **"Promoción"** aparecen en la sección Ofertas.
+- Si ningún producto tiene esos tags, esas secciones no se muestran. Los tags se crean y se asignan desde el panel admin.
+
+---
 
 ## 📁 Estructura del proyecto
 
 ```
 src/
-├── components/      Layout, Navbar, Footer, ProductCard, Estrella, ProtectedRoute, AdminRoute, Loader, ErrorMessage
+├── components/      Layout, Navbar, Footer, ProductCard, Carrusel, Estrella, Loader, ErrorMessage,
+│   │                ProtectedRoute, AdminRoute
+│   └── admin/       AdminNav, Modal, Campo, Aviso, BotonEliminar, estilos
 ├── pages/           Home, Products, ProductDetail, Login, Cart, Checkout, Forbidden, NotFound
-│   └── admin/       AdminDashboard, AdminProducts, AdminCategories, AdminTags
-├── context/         AuthContext, CartContext, useCart
-├── services/        apiClient, productService, categoryService, tagService, authService, validaciones
-├── data/            api-fake.json
-├── styles/
+│   └── admin/       AdminProducts, AdminCategories, AdminTags
+├── context/         AuthContext, CartContext + useCart, ThemeContext + useTema
+├── hooks/           useDatosAdmin, useSincronizarCarrito
+├── services/        apiClient, authService, productService, categoryService, tagService,
+│                    validaciones, tagsEspeciales
+├── assets/          Fondos claro y oscuro
 ├── App.jsx          Definición de rutas
 ├── main.jsx         Punto de entrada
-└── index.css        Tailwind
+└── index.css        Tailwind y colores del tema
 ```
+
+- **`services/`**: solo llamadas a la API y validaciones, sin React.
+- **`hooks/`**: lógica reutilizable con estado de React.
+- **`context/`**: estado global (sesión, carrito, tema).
 
 ---
 
@@ -218,13 +249,64 @@ Pruebas manuales realizadas con `npm run dev`, datos reales de la API y las cuen
 
 ### Parte B: Acceso, administración y errores
 
-_Pendiente: la completa Alejandro (acceso a `/admin`, CRUD, dependencias y fallas de red)._
+| # | Caso | Pasos | Resultado esperado | Resultado obtenido |
+|---|---|---|---|---|
+| B1 | Visitante intenta entrar a `/admin` | Sin sesión, ir a `/admin` | Redirige a `/login` y, al iniciar sesión, vuelve a la ruta pedida | ✅ Redirige a `/login`; al entrar como cliente vuelve a `/admin` y termina en `/403` (B2) |
+| B2 | Cliente intenta acceder a `/admin/productos` | Con sesión de cliente, ir a `/admin/productos` | Pantalla de acceso denegado | ✅ Redirige a `/403` "Acceso denegado"; el link "Administración" no aparece en su menú |
+| B3 | Admin crea un producto (validaciones) | `/admin/productos` → "+ Nuevo producto" → "Guardar" con el formulario vacío; después completar los datos y una imagen | Primero, mensajes de campos obligatorios; después, producto creado con su imagen | ✅ Marca nombre, descripción, precio y categoría como obligatorios; al completar muestra "Producto "BUZO DEMO" creado." y aparece en la tabla con la imagen |
+| B4 | Se cambian la categoría y los tags de un producto | "Editar" → cambiar categoría de Remeras a Buzos y marcar el tag "Oferta" → "Guardar" | El producto queda con la nueva categoría y el tag | ✅ "Producto actualizado."; en la tabla figura en Buzos con el tag Oferta |
+| B5 | Admin borra un producto | "Eliminar" → confirmar con "Sí" | Pide confirmación y lo borra | ✅ Muestra "¿Eliminar? Sí / No"; al confirmar, "Producto eliminado." y desaparece de la tabla |
+| B6 | Se elimina una categoría con productos | `/admin/categorias`, intentar eliminar "Pantalones" | No se permite y se explica por qué | ✅ Botón deshabilitado: "Tiene 3 producto(s). Movelos a otra categoría antes de eliminarla." |
+| B7 | Se elimina un tag usado por productos | `/admin/tags` → "Eliminar" en "Oferta" | La confirmación avisa a cuántos productos afecta | ✅ "¿Eliminar? Se quita de 3 producto(s)." (se canceló con "No") |
+| B8 | Falla el fetch | Cortar la conexión con la API y abrir `/productos` | Mensaje comprensible y botón para reintentar | ✅ "No se pudo conectar con el servidor. Revisá tu conexión a internet." con botón "Reintentar" |
+| B9 | Recarga de página conserva cambios y sesión | Como admin, crear o editar algo y recargar con F5 | La sesión sigue y los cambios siguen (están en la API) | ✅ Sigue en `/admin/productos` como "Administrador" y los cambios se mantienen |
+| B10 | Imagen inválida | En el formulario de producto, elegir un archivo `.txt` | Se rechaza antes de enviarlo | ✅ ""no-imagen.txt" no es una imagen (JPG, PNG, WEBP o GIF)." |
+| B11 | Nombre repetido | Crear una categoría llamada "remeras" | No se permite el duplicado | ✅ "Ya existe una categoría con ese nombre." |
+| B12 | ID inválido | Entrar a `/productos/abc` | "No encontrado" sin consultar la API | ✅ "Producto no encontrado." y ninguna petición a `/products/abc` |
 
 ---
 
 ## 📸 Capturas y video
 
-_Pendiente: se agregarán al finalizar el desarrollo._
+### Video: cliente compra
+Visitante entra a `/admin` → login como cliente → acceso denegado → catálogo filtrado → detalle → carrito → compra confirmada.
+
+![Cliente compra](docs/capturas/cliente-compra.gif)
+
+### Video: admin CRUD
+Validaciones → crear producto con imagen → cambiar categoría y tags → eliminar con confirmación.
+
+![Admin CRUD](docs/capturas/admin-crud.gif)
+
+Versiones en MP4: [`video-cliente-compra.mp4`](docs/capturas/video-cliente-compra.mp4) · [`video-admin-crud.mp4`](docs/capturas/video-admin-crud.mp4)
+
+### Tienda
+
+| Home | Home (tema oscuro) |
+|---|---|
+| ![Home](docs/capturas/01-home.png) | ![Home oscuro](docs/capturas/02-home-oscuro.png) |
+| **Catálogo con filtros** | **Detalle (visitante)** |
+| ![Catálogo](docs/capturas/03-catalogo-filtros.png) | ![Detalle](docs/capturas/04-detalle-visitante.png) |
+| **Carrito** | **Checkout** |
+| ![Carrito](docs/capturas/06-carrito.png) | ![Checkout](docs/capturas/07-checkout.png) |
+| **Compra confirmada** | **Login (al intentar entrar a /admin)** |
+| ![Compra confirmada](docs/capturas/08-compra-confirmada.png) | ![Login](docs/capturas/05-login-desde-admin.png) |
+
+### Administración
+
+| Productos | Validaciones del formulario |
+|---|---|
+| ![Admin productos](docs/capturas/09-admin-productos.png) | ![Validaciones](docs/capturas/10-admin-validaciones.png) |
+| **Editar producto** | **Categorías (no se borran si tienen productos)** |
+| ![Editar producto](docs/capturas/10b-admin-editar-producto.png) | ![Categorías](docs/capturas/10c-admin-categorias.png) |
+| **Confirmación al borrar un tag** | |
+| ![Tags](docs/capturas/10d-admin-tags-confirmar.png) | |
+
+### Errores y accesos
+
+| 403: cliente en `/admin/productos` | 404 | Falla de red |
+|---|---|---|
+| ![403](docs/capturas/11-403-cliente.png) | ![404](docs/capturas/12-404.png) | ![Error de red](docs/capturas/13-error-de-red.png) |
 
 ---
 
